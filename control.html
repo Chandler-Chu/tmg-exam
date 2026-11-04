@@ -51,6 +51,11 @@ input:focus{border-color:var(--navy);background:#fff}
 .ibar{height:10px;width:140px;background:#f3f4f6;border-radius:5px;overflow:hidden}.ibar i{display:block;height:100%;background:var(--navy)}
 .itable tr.low .ibar i{background:#dc2626}
 .lowtag{color:#b91c1c;font-weight:600}
+.keyline{font-size:15px;color:var(--success);margin-top:4px;min-height:22px}.keyline b{font-size:20px}
+.keybar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px 4px;font-size:13px;font-weight:600}
+.keybar input{margin-right:6px;transform:scale(1.15)}
+.dist-row.ok span:first-child{color:var(--success)}.dist-row.ok .bar i{background:var(--success)}
+.kcol{font-weight:700;color:var(--success)}
 </style>
 </head>
 <body>
@@ -67,7 +72,7 @@ input:focus{border-color:var(--navy);background:#fff}
   <section id="v-panel" hidden>
     <div class="card">
       <div class="hero">
-        <div><div class="muted">目前題目</div><div class="bigq" id="bigq">—</div></div>
+        <div><div class="muted">目前題目</div><div class="bigq" id="bigq">—</div><div class="keyline" id="keyLine"></div></div>
         <div style="text-align:right"><span class="chip" id="chip">—</span><div class="timer" id="timer"></div></div>
       </div>
       <div class="stats">
@@ -93,6 +98,8 @@ input:focus{border-color:var(--navy);background:#fff}
       </div>
     </div>
 
+    <div class="keybar"><label><input type="checkbox" id="showKey" checked> 顯示正確答案</label><span class="muted">分享螢幕給學生前，請取消勾選</span></div>
+
     <div class="card" id="distCard" hidden>
       <h2 style="font-size:16px">第 <span id="distQ"></span> 題作答分佈</h2>
       <div id="dist"></div>
@@ -111,6 +118,7 @@ input:focus{border-color:var(--navy);background:#fff}
 
   const $ = id => document.getElementById(id);
   let pin = '', st = null, offset = 0, timer = null;
+  const showKey = () => { const c = $('showKey'); return c ? c.checked : true; };
   try { pin = sessionStorage.getItem('tmg_pin') || ''; } catch (e) {}
 
   async function call(action, extra = {}) {
@@ -161,6 +169,7 @@ input:focus{border-color:var(--navy);background:#fff}
     st = j; offset = j.now - Date.now();
     $('sess').textContent = `場次 ${j.session}`;
     $('bigq').textContent = j.q ? `第 ${j.q} 題 / ${j.total}` : '尚未開始';
+    $('keyLine').innerHTML = (showKey() && j.key && j.q && j.status !== 'ended') ? `本題正確答案：<b>${j.key}</b>` : '';
     $('chip').textContent = LABEL[j.status] || j.status; $('chip').className = `chip ${j.status}`;
     $('sReg').textContent = j.registered; $('sAns').textContent = j.answered;
     $('sRate').textContent = j.registered ? Math.round(j.answered / j.registered * 100) + '%' : '0%';
@@ -172,18 +181,18 @@ input:focus{border-color:var(--navy);background:#fff}
       const tot = j.answered || 0;
       $('dist').innerHTML = ['A','B','C','D'].map(k => {
         const n = j.dist[k] || 0, pct = tot ? Math.round(n / tot * 100) : 0;
-        return `<div class="dist-row"><span>(${k})</span><div class="bar"><i style="width:${pct}%"></i></div><span>${n} 人 ${pct}%</span></div>`;
+        return `<div class="dist-row ${showKey() && k === j.key ? 'ok' : ''}"><span>(${k})${showKey() && k === j.key ? ' ✓' : ''}</span><div class="bar"><i style="width:${pct}%"></i></div><span>${n} 人 ${pct}%</span></div>`;
       }).join('');
     } else { $('distCard').hidden = true; }
 
     if (j.status === 'ended' && j.summary) {
       $('sumCard').hidden = false;
       const items = j.summary.items || [];
-      const trs = items.map(([q, na, nc, r]) =>
-        `<tr class="${r < 50 ? 'low' : ''}"><td>第 ${q} 題</td><td><div class="ibar"><i style="width:${r}%"></i></div></td><td><b>${r}%</b></td><td>${nc} / ${j.summary.n}</td><td>${na}</td></tr>`).join('');
+      const trs = items.map(([q, na, nc, r, ky]) =>
+        `<tr class="${r < 50 ? 'low' : ''}"><td>第 ${q} 題</td><td class="kcol">${showKey() ? (ky || '') : '—'}</td><td><div class="ibar"><i style="width:${r}%"></i></div></td><td><b>${r}%</b></td><td>${nc} / ${j.summary.n}</td><td>${na}</td></tr>`).join('');
       $('sum').innerHTML = `交卷人數：<b>${j.summary.n}</b> 人　平均分數：<b>${j.summary.avg}</b> 分<br>
         個別成績已寫入「成績」工作表，逐題統計已寫入「題目分析」工作表。` +
-        (items.length ? `<table class="itable"><thead><tr><th>題號</th><th>答對率</th><th></th><th>答對 / 應考</th><th>作答人數</th></tr></thead><tbody>${trs}</tbody></table>
+        (items.length ? `<table class="itable"><thead><tr><th>題號</th><th>答案</th><th>答對率</th><th></th><th>答對 / 應考</th><th>作答人數</th></tr></thead><tbody>${trs}</tbody></table>
         <div class="muted" style="margin-top:8px">答對率以全體應考人數計算（未作答視為答錯）。<span class="lowtag">紅色</span>為答對率低於 50% 的題目。</div>` : '');
     } else { $('sumCard').hidden = true; }
   }
@@ -194,6 +203,9 @@ input:focus{border-color:var(--navy);background:#fff}
     const left = Math.ceil((st.deadline - (Date.now() + offset)) / 1000);
     t.textContent = left > 0 ? `${left} 秒` : '時間到';
   }, 250);
+
+  try { if (sessionStorage.getItem('tmg_showkey') === '0') $('showKey').checked = false; } catch (e) {}
+  $('showKey').onchange = () => { try { sessionStorage.setItem('tmg_showkey', $('showKey').checked ? '1' : '0'); } catch (e) {} if (st) render(st); };
 
   if (pin) { $('pin').value = pin; login(); }
 </script>
