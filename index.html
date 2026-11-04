@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台明將個案測驗</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1a1a2e;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--bg:#f7f7f9;--success:#059669;--warn:#b45309}
+body{font-family:'Noto Sans TC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--navy);color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{font-size:17px;font-weight:700}.who{font-size:12px;color:rgba(255,255,255,.7)}
+.wrap{max-width:720px;margin:0 auto;padding:28px 16px 64px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px}
+h2{font-size:20px;font-weight:700;margin-bottom:6px}.sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+.field{margin-bottom:16px}.field-label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.hint{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+input[type=text],input[type=number],input[type=email],input[type=time],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fafafa;outline:none}
+input:focus{border-color:var(--navy);background:#fff}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.btn-group{display:flex;flex-wrap:wrap;gap:8px}.btn-group input{display:none}
+.btn-group label{padding:9px 18px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;background:#fff;color:var(--muted)}
+.btn-group input:checked+label{border-color:var(--navy);background:var(--navy);color:#fff}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer}
+.btn:disabled{background:#9ca3af;cursor:not-allowed}
+.time-hint{font-size:11px;color:var(--muted);margin-top:5px}
+@media(max-width:640px){.row-2,.row-3{grid-template-columns:1fr}}
+
+.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.tag{font-size:12px;font-weight:700;color:var(--muted);background:#fff;border:1px solid var(--border);padding:4px 12px;border-radius:99px}
+.timer{font-size:14px;font-weight:700;color:var(--warn)}
+.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 18px}.option-grid input{display:none}
+.option-card{border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;background:#fafafa;display:block}
+.option-grid input:checked+.option-card{border-color:var(--navy);background:#f0f0f8}
+.opt-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.opt-check{width:16px;height:16px;border:1.5px solid var(--border);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px}
+.option-grid input:checked+.option-card .opt-check{background:var(--navy);border-color:var(--navy);color:#fff}
+.option-grid input:checked+.option-card .opt-check::after{content:"●"}
+.opt-title{font-size:13.5px;line-height:1.65}
+.msg{text-align:center;padding:48px 20px}.msg .ico{font-size:44px;margin-bottom:12px}
+.msg h3{font-size:18px;margin-bottom:8px}.msg p{font-size:13px;color:var(--muted);line-height:1.7}
+.score{font-size:56px;font-weight:700;color:var(--navy);margin:10px 0}
+@media(max-width:640px){.option-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="logo">📋 台明將個案測驗</div><div class="who" id="who"></div></header>
+<main class="wrap">
+
+  <section id="v-basic" class="card">
+    <h2>報到</h2>
+    <div class="sub">填完基本資料後進入測驗。題目由老師口頭說明，<b>一次只開放一題</b>，每題限答一次、送出後不能修改。</div>
+    <div class="row-2">
+      <div class="field"><label class="field-label">系級</label><input id="f-dept" type="text"></div>
+      <div class="field"><label class="field-label">上課班級</label>
+        <div class="btn-group">
+          <input type="radio" name="r-classtime" value="下午一點班" id="ct1"><label for="ct1">下午一點班</label>
+          <input type="radio" name="r-classtime" value="下午四點班" id="ct2"><label for="ct2">下午四點班</label>
+        </div></div>
+    </div>
+    <div class="row-3">
+      <div class="field"><label class="field-label">姓名</label><input id="f-name" type="text"></div>
+      <div class="field"><label class="field-label">學號</label><input id="f-id" type="text"></div>
+      <div class="field"><label class="field-label">組別<span class="hint">只填數字</span></label><input id="f-group" type="number" min="1" max="99"></div>
+    </div>
+    <div class="field"><label class="field-label">Gmail<span class="hint">您登入 Google Meet 的信箱</span></label><input id="f-gmail" type="email" placeholder="yourname@gmail.com"></div>
+    <div class="field"><label class="field-label">開始填寫資料的時間<span class="hint">幾點幾分，請勿亂填</span></label>
+      <input id="f-starttime" type="time"><div class="time-hint">系統目前時間：<span id="clock">--:--</span></div></div>
+    <button class="btn" id="regBtn" onclick="register()">報到並進入測驗</button>
+  </section>
+
+  <section id="v-live" hidden>
+    <div class="topline"><span class="tag" id="qtag">尚未開始</span><span class="timer" id="timer"></span></div>
+    <div id="stage"></div>
+  </section>
+
+</main>
+<script>
+  // ↓↓↓ 換成 Apps Script 的 Web App URL ↓↓↓
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSt1rOmJt4tBfYylmn3OWxtOahOjScbQzeWIaahrWmINnYqomqDrZG0qc2zdRH4ETb/exec';
+  const POLL_MS = 3000;
+
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  let me = store.get('tmg_me');
+  let state = null, offset = 0, shownQ = 0, sending = false, pollTimer = null;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const answeredSet = () => new Set((me && me.answered) || []);
+  function markAnswered(q) { me.answered = [...answeredSet(), q]; store.set('tmg_me', me); }
+
+  function tick() { const d = new Date(); $('clock').textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+  tick(); setInterval(tick, 10000);
+
+  async function post(fd) { const r = await fetch(SCRIPT_URL, { method: 'POST', body: fd }); return r.json(); }
+
+  function showBasic() { $('v-basic').hidden = false; $('v-live').hidden = true; $('who').textContent = ''; }
+  function showLive() { $('v-basic').hidden = true; $('v-live').hidden = false; $('who').textContent = `${me.name}｜${me.sid}`; }
+
+  function msg(ico, title, text) {
+    $('stage').innerHTML = `<div class="card msg"><div class="ico">${ico}</div><h3>${title}</h3><p>${text}</p></div>`;
+  }
+
+  async function register() {
+    const v = id => $(id).value.trim();
+    const ct = document.querySelector('input[name="r-classtime"]:checked');
+    if (!v('f-dept'))      return alert('請填寫「系級」。');
+    if (!ct)               return alert('請選擇「上課班級」。');
+    if (!v('f-name'))      return alert('請填寫「姓名」。');
+    if (!v('f-id'))        return alert('請填寫「學號」。');
+    if (!v('f-group'))     return alert('請填寫「組別」。');
+    if (!v('f-gmail'))     return alert('請填寫「Gmail」。');
+    if (!v('f-starttime')) return alert('請填寫「開始填寫資料的時間」。');
+    const d = new Date(), p = n => String(n).padStart(2,'0');
+    const fd = new FormData();
+    fd.append('action', 'register');
+    fd.append('系級', v('f-dept')); fd.append('上課班級', ct.value);
+    fd.append('姓名', v('f-name')); fd.append('學號', v('f-id')); fd.append('組別', v('f-group'));
+    fd.append('Gmail', v('f-gmail')); fd.append('開始填寫時間', v('f-starttime'));
+    fd.append('系統開始時間', `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`);
+    $('regBtn').disabled = true; $('regBtn').textContent = '報到中…';
+    try {
+      const j = await post(fd);
+      if (j.result !== 'success') throw new Error(j.error || '報到失敗');
+      me = { sid: v('f-id'), name: v('f-name'), session: j.session, answered: [] };
+      store.set('tmg_me', me);
+      showLive(); render(j); schedule();
+    } catch (e) {
+      alert('報到失敗，請再按一次。'); $('regBtn').disabled = false; $('regBtn').textContent = '報到並進入測驗';
+    }
+  }
+
+  function schedule() { clearTimeout(pollTimer); pollTimer = setTimeout(poll, POLL_MS + Math.random() * 1000); }
+  async function poll() {
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=state&t=${Date.now()}`);
+      const st = await r.json();
+      if (st.result === 'success') render(st);
+    } catch (e) {}
+    if (!state || state.status !== 'ended') schedule();
+  }
+
+  function render(st) {
+    state = st; offset = st.now - Date.now();
+    if (me && st.session !== me.session) { me = null; store.set('tmg_me', null); clearTimeout(pollTimer); showBasic(); return; }
+    $('qtag').textContent = st.q ? `第 ${st.q} 題 / ${st.total}` : '尚未開始';
+    if (st.status === 'ended')   { showFinal(); return; }
+    if (st.status === 'waiting') { shownQ = 0; msg('⏳', '等待老師開始測驗', '老師開放題目後，畫面會自動出現選項。'); return; }
+    if (st.status === 'open') {
+      if (answeredSet().has(st.q)) { shownQ = 0; msg('✅', `第 ${st.q} 題已送出`, '請等待老師開放下一題。'); return; }
+      if (shownQ !== st.q) buildQuestion(st);
+      return;
+    }
+    shownQ = 0;
+    const done = answeredSet().has(st.q);
+    msg(done ? '✅' : '⌛', `第 ${st.q} 題作答已截止`,
+        done ? '你的答案已記錄，請等待下一題。' : '這一題沒有在時間內作答，以 0 分計算。請等待下一題。');
+  }
+
+  function buildQuestion(st) {
+    shownQ = st.q;
+    const L = ['A','B','C','D'];
+    $('stage').innerHTML = `<div class="card">
+      <div class="sub" style="margin-bottom:0">請依老師口頭說明的題目，選出最適當的答案。<b>送出後不能修改。</b></div>
+      <div class="option-grid">${st.options.map((o, i) =>
+        `<input type="radio" name="opt" value="${L[i]}" id="o${i}"><label for="o${i}" class="option-card">
+          <div class="opt-label"><span class="opt-check"></span>(${L[i]})</div><div class="opt-title">${esc(o)}</div></label>`).join('')}
+      </div>
+      <button class="btn" id="sendBtn" onclick="sendAnswer(${st.q})">送出答案</button></div>`;
+  }
+
+  async function sendAnswer(q) {
+    const sel = document.querySelector('input[name="opt"]:checked');
+    if (!sel) return alert('請先選擇一個答案。');
+    const btn = $('sendBtn');
+    sending = true; btn.disabled = true; btn.textContent = '送出中…';
+    const fd = new FormData();
+    fd.append('action', 'answer'); fd.append('sid', me.sid); fd.append('q', q); fd.append('ans', sel.value);
+    try {
+      const j = await post(fd);
+      if (j.result === 'success' || j.result === 'duplicate') {
+        markAnswered(q); shownQ = 0; msg('✅', `第 ${q} 題已送出`, '請等待老師開放下一題。');
+      } else if (j.result === 'closed') {
+        shownQ = 0; msg('⌛', `第 ${q} 題作答已截止`, '這一題沒有在時間內送出，以 0 分計算。');
+      } else {
+        alert(j.error || '送出失敗，請再按一次。'); btn.disabled = false; btn.textContent = '送出答案';
+      }
+    } catch (e) {
+      alert('網路錯誤，請再按一次「送出答案」。'); btn.disabled = false; btn.textContent = '送出答案';
+    } finally { sending = false; }
+  }
+
+  setInterval(() => {
+    const t = $('timer');
+    if (!state || state.status !== 'open' || !state.deadline) { t.textContent = ''; return; }
+    const left = Math.ceil((state.deadline - (Date.now() + offset)) / 1000);
+    if (left > 0) { t.textContent = `剩餘 ${left} 秒`; return; }
+    t.textContent = '時間到';
+    const b = $('sendBtn'); if (b && !sending) b.disabled = true;
+  }, 250);
+
+  async function showFinal() {
+    clearTimeout(pollTimer);
+    try {
+      const r = await fetch(`${SCRIPT_URL}?action=score&sid=${encodeURIComponent(me.sid)}&t=${Date.now()}`);
+      const j = await r.json();
+      if (j.result === 'notyet') { setTimeout(showFinal, 2000); return; }
+      document.querySelector('main').innerHTML = j.result === 'success'
+        ? `<div class="card msg"><div style="font-size:14px;color:var(--muted)">測驗結束</div>
+             <div class="score">${j.score} 分</div><p>答對 ${j.correct} / ${j.total} 題<br>成績已記錄，謝謝作答！</p></div>`
+        : `<div class="card msg"><div class="ico">📭</div><h3>測驗已結束</h3><p>查無你在這一場次的作答紀錄。</p></div>`;
+      $('who').textContent = '';
+    } catch (e) { setTimeout(showFinal, 3000); }
+  }
+
+  if (me && me.sid) { showLive(); poll(); } else { showBasic(); }
+</script>
+</body>
+</html>
+

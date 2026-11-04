@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老師控制台</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1a1a2e;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--bg:#f7f7f9;--success:#059669;--warn:#b45309}
+body{font-family:'Noto Sans TC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--navy);color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{font-size:17px;font-weight:700}.who{font-size:12px;color:rgba(255,255,255,.7)}
+.wrap{max-width:720px;margin:0 auto;padding:28px 16px 64px}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:14px}
+h2{font-size:20px;font-weight:700;margin-bottom:6px}.sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+.field{margin-bottom:16px}.field-label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.hint{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+input[type=text],input[type=number],input[type=email],input[type=time],input[type=password]{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fafafa;outline:none}
+input:focus{border-color:var(--navy);background:#fff}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.btn-group{display:flex;flex-wrap:wrap;gap:8px}.btn-group input{display:none}
+.btn-group label{padding:9px 18px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;background:#fff;color:var(--muted)}
+.btn-group input:checked+label{border-color:var(--navy);background:var(--navy);color:#fff}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer}
+.btn:disabled{background:#9ca3af;cursor:not-allowed}
+.time-hint{font-size:11px;color:var(--muted);margin-top:5px}
+@media(max-width:640px){.row-2,.row-3{grid-template-columns:1fr}}
+
+.wrap{max-width:860px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.bigq{font-size:44px;font-weight:700}
+.chip{display:inline-block;font-size:13px;font-weight:700;padding:5px 14px;border-radius:99px;background:#f3f4f6;color:var(--muted)}
+.chip.open{background:#d1fae5;color:var(--success)}.chip.closed{background:#fef3c7;color:var(--warn)}.chip.ended{background:var(--navy);color:#fff}
+.timer{font-size:28px;font-weight:700;color:var(--warn);min-height:34px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.stat{background:#fafafa;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat b{display:block;font-size:26px}.stat span{font-size:12px;color:var(--muted)}
+.ctrl{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.btn.alt{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.warn{background:#b45309}.btn.danger{background:#fff;color:#b91c1c;border:1.5px solid #fca5a5;font-weight:600}
+.dist-row{display:grid;grid-template-columns:40px 1fr 70px;gap:10px;align-items:center;margin:10px 0;font-size:14px;font-weight:600}
+.bar{height:26px;background:#f3f4f6;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--navy);transition:width .4s}
+.muted{font-size:12px;color:var(--muted)}
+@media(max-width:640px){.btns{grid-template-columns:1fr 1fr}.ctrl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="logo">🎛️ 台明將測驗｜老師控制台</div><div class="who" id="sess"></div></header>
+<main class="wrap">
+
+  <section id="v-login" class="card">
+    <h2>老師登入</h2>
+    <div class="sub">輸入 Apps Script 中設定的老師密碼。</div>
+    <div class="field"><input id="pin" type="password" placeholder="老師密碼"></div>
+    <button class="btn" onclick="login()">進入控制台</button>
+  </section>
+
+  <section id="v-panel" hidden>
+    <div class="card">
+      <div class="hero">
+        <div><div class="muted">目前題目</div><div class="bigq" id="bigq">—</div></div>
+        <div style="text-align:right"><span class="chip" id="chip">—</span><div class="timer" id="timer"></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="sReg">0</b><span>已報到人數</span></div>
+        <div class="stat"><b id="sAns">0</b><span>本題已作答</span></div>
+        <div class="stat"><b id="sRate">0%</b><span>本題作答率</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctrl">
+        <div><label class="field-label">要開放的題號</label><input id="qIn" type="number" min="1" max="30" value="1"></div>
+        <div><label class="field-label">倒數秒數<span class="hint">0 = 不倒數，只能手動關閉</span></label><input id="secIn" type="number" min="0" value="60"></div>
+      </div>
+      <div class="btns">
+        <button class="btn" onclick="openQ()">▶ 開放此題</button>
+        <button class="btn warn" onclick="act('close')">■ 關閉作答</button>
+        <button class="btn alt" id="nextBtn" onclick="nextQ()">⏭ 下一題</button>
+      </div>
+      <div class="btns" style="grid-template-columns:1fr 1fr">
+        <button class="btn alt" onclick="endExam()">🏁 結束測驗並計分</button>
+        <button class="btn danger" onclick="resetExam()">↺ 開始新場次（換班）</button>
+      </div>
+    </div>
+
+    <div class="card" id="distCard" hidden>
+      <h2 style="font-size:16px">第 <span id="distQ"></span> 題作答分佈</h2>
+      <div id="dist"></div>
+    </div>
+
+    <div class="card" id="sumCard" hidden>
+      <h2 style="font-size:16px">測驗結果</h2>
+      <div class="sub" id="sum" style="margin:0"></div>
+    </div>
+  </section>
+
+</main>
+<script>
+  // ↓↓↓ 換成 Apps Script 的 Web App URL ↓↓↓
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSt1rOmJt4tBfYylmn3OWxtOahOjScbQzeWIaahrWmINnYqomqDrZG0qc2zdRH4ETb/exec';
+
+  const $ = id => document.getElementById(id);
+  let pin = '', st = null, offset = 0, timer = null;
+  try { pin = sessionStorage.getItem('tmg_pin') || ''; } catch (e) {}
+
+  async function call(action, extra = {}) {
+    const fd = new FormData();
+    fd.append('action', action); fd.append('pin', pin);
+    Object.entries(extra).forEach(([k, v]) => fd.append(k, v));
+    const r = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+    return r.json();
+  }
+
+  async function login() {
+    pin = $('pin').value.trim();
+    const j = await call('monitor');
+    if (j.result !== 'success') { alert(j.error || '登入失敗'); return; }
+    try { sessionStorage.setItem('tmg_pin', pin); } catch (e) {}
+    $('v-login').hidden = true; $('v-panel').hidden = false;
+    render(j); loop();
+  }
+
+  function loop() { clearTimeout(timer); timer = setTimeout(async () => { try { const j = await call('monitor'); if (j.result === 'success') render(j); } catch (e) {} loop(); }, 3000); }
+
+  async function act(action, extra) {
+    try { const j = await call(action, extra); if (j.result !== 'success') return alert(j.error || '操作失敗'); render(j); }
+    catch (e) { alert('網路錯誤，請再試一次。'); }
+  }
+
+  function openQ() {
+    const q = parseInt($('qIn').value, 10);
+    if (!(q >= 1 && q <= 30)) return alert('題號必須在 1 到 30 之間。');
+    act('open', { q, sec: parseInt($('secIn').value, 10) || 0 });
+  }
+  function nextQ() {
+    const q = (st && st.q ? st.q : 0) + 1;
+    if (q > 30) return alert('已經是最後一題了。');
+    $('qIn').value = q;
+    act('open', { q, sec: parseInt($('secIn').value, 10) || 0 });
+  }
+  function endExam() {
+    if (confirm('結束測驗後，學生畫面會顯示分數，且無法再作答。確定結束並計分嗎？')) act('end');
+  }
+  function resetExam() {
+    if (confirm('開始新場次（例如換下一班）。目前場次的資料仍保留在 Sheets，但學生必須重新報到。確定嗎？')) act('reset');
+  }
+
+  const LABEL = { waiting: '等待開始', open: '作答中', closed: '已截止', ended: '已結束' };
+  function render(j) {
+    st = j; offset = j.now - Date.now();
+    $('sess').textContent = `場次 ${j.session}`;
+    $('bigq').textContent = j.q ? `第 ${j.q} 題 / ${j.total}` : '尚未開始';
+    $('chip').textContent = LABEL[j.status] || j.status; $('chip').className = `chip ${j.status}`;
+    $('sReg').textContent = j.registered; $('sAns').textContent = j.answered;
+    $('sRate').textContent = j.registered ? Math.round(j.answered / j.registered * 100) + '%' : '0%';
+    $('nextBtn').disabled = j.q >= j.total;
+    if (document.activeElement !== $('qIn') && j.status !== 'open') $('qIn').value = Math.min(j.q + 1, j.total);
+
+    if (j.dist && j.q) {
+      $('distCard').hidden = false; $('distQ').textContent = j.q;
+      const tot = j.answered || 0;
+      $('dist').innerHTML = ['A','B','C','D'].map(k => {
+        const n = j.dist[k] || 0, pct = tot ? Math.round(n / tot * 100) : 0;
+        return `<div class="dist-row"><span>(${k})</span><div class="bar"><i style="width:${pct}%"></i></div><span>${n} 人 ${pct}%</span></div>`;
+      }).join('');
+    } else { $('distCard').hidden = true; }
+
+    if (j.status === 'ended' && j.summary) {
+      $('sumCard').hidden = false;
+      $('sum').innerHTML = `交卷人數：<b>${j.summary.n}</b> 人　平均分數：<b>${j.summary.avg}</b> 分<br>個別成績已寫入 Google Sheets 的「成績」工作表。`;
+    } else { $('sumCard').hidden = true; }
+  }
+
+  setInterval(() => {
+    const t = $('timer');
+    if (!st || st.status !== 'open' || !st.deadline) { t.textContent = ''; return; }
+    const left = Math.ceil((st.deadline - (Date.now() + offset)) / 1000);
+    t.textContent = left > 0 ? `${left} 秒` : '時間到';
+  }, 250);
+
+  if (pin) { $('pin').value = pin; login(); }
+</script>
+</body>
+</html>
+
