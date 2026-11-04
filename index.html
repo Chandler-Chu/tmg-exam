@@ -179,7 +179,7 @@ input:focus{border-color:var(--navy);background:#fff}
     const btn = $('sendBtn');
     sending = true; btn.disabled = true; btn.textContent = '送出中…';
     const fd = new FormData();
-    fd.append('action', 'answer'); fd.append('sid', me.sid); fd.append('q', q); fd.append('ans', sel.value);
+    fd.append('action', 'answer'); fd.append('stu', me.sid); fd.append('q', q); fd.append('ans', sel.value);
     try {
       const j = await post(fd);
       if (j.result === 'success' || j.result === 'duplicate') {
@@ -206,7 +206,7 @@ input:focus{border-color:var(--navy);background:#fff}
   async function showFinal() {
     clearTimeout(pollTimer);
     try {
-      const r = await fetch(`${SCRIPT_URL}?action=score&sid=${encodeURIComponent(me.sid)}&t=${Date.now()}`);
+      const r = await fetch(`${SCRIPT_URL}?action=score&stu=${encodeURIComponent(me.sid)}&t=${Date.now()}`);
       const j = await r.json();
       if (j.result === 'notyet') { setTimeout(showFinal, 2000); return; }
       document.querySelector('main').innerHTML = j.result === 'success'
