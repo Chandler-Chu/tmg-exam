@@ -196,7 +196,7 @@ input:focus{border-color:var(--navy);background:#fff}
       const items = j.summary.items || [];
       const trs = items.map(([q, na, nc, r, ky]) =>
         `<tr class="${r < 50 ? 'low' : ''}"><td>第 ${q} 題</td><td class="kcol">${showKey() ? (ky || '') : '—'}</td><td><div class="ibar"><i style="width:${r}%"></i></div></td><td><b>${r}%</b></td><td>${nc} / ${j.summary.n}</td><td>${na}</td></tr>`).join('');
-      $('sum').innerHTML = `交卷人數：<b>${j.summary.n}</b> 人　平均分數：<b>${j.summary.avg}</b> 分<br>
+      $('sum').innerHTML = `交卷人數：<b>${j.summary.n}</b> 人　平均分數：<b>${j.summary.avg}</b> 分　計分題數：<b>${j.summary.nOpen || j.total}</b> 題（只計實際開放的題目）<br>
         個別成績已寫入「成績」工作表，逐題統計已寫入「題目分析」工作表。` +
         (items.length ? `<table class="itable"><thead><tr><th>題號</th><th>答案</th><th>答對率</th><th></th><th>答對 / 應考</th><th>作答人數</th></tr></thead><tbody>${trs}</tbody></table>
         <div class="muted" style="margin-top:8px">答對率以全體應考人數計算（未作答視為答錯）。<span class="lowtag">紅色</span>為答對率低於 50% 的題目。</div>` : '');
