@@ -51,6 +51,8 @@ input:focus{border-color:var(--navy);background:#fff}
 .ibar{height:10px;width:140px;background:#f3f4f6;border-radius:5px;overflow:hidden}.ibar i{display:block;height:100%;background:var(--navy)}
 .itable tr.low .ibar i{background:#dc2626}
 .lowtag{color:#b91c1c;font-weight:600}
+.themeline{font-size:12px;font-weight:700;color:var(--muted);margin-top:6px}
+.stemline{font-size:17px;line-height:1.6;margin-top:4px;max-width:640px}
 .keyline{font-size:15px;color:var(--success);margin-top:4px;min-height:22px}.keyline b{font-size:20px}
 .keybar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px 4px;font-size:13px;font-weight:600}
 .keybar input{margin-right:6px;transform:scale(1.15)}
@@ -72,7 +74,7 @@ input:focus{border-color:var(--navy);background:#fff}
   <section id="v-panel" hidden>
     <div class="card">
       <div class="hero">
-        <div><div class="muted">目前題目</div><div class="bigq" id="bigq">—</div><div class="keyline" id="keyLine"></div></div>
+        <div><div class="muted">目前題目</div><div class="bigq" id="bigq">—</div><div class="themeline" id="themeLine"></div><div class="stemline" id="stemLine"></div><div class="keyline" id="keyLine"></div></div>
         <div style="text-align:right"><span class="chip" id="chip">—</span><div class="timer" id="timer"></div></div>
       </div>
       <div class="stats">
@@ -84,7 +86,7 @@ input:focus{border-color:var(--navy);background:#fff}
 
     <div class="card">
       <div class="ctrl">
-        <div><label class="field-label">要開放的題號</label><input id="qIn" type="number" min="1" max="30" value="1"></div>
+        <div><label class="field-label">要開放的題號</label><input id="qIn" type="number" min="1" value="1"></div>
         <div><label class="field-label">倒數秒數<span class="hint">0 = 不倒數，只能手動關閉</span></label><input id="secIn" type="number" min="0" value="60"></div>
       </div>
       <div class="btns">
@@ -98,7 +100,7 @@ input:focus{border-color:var(--navy);background:#fff}
       </div>
     </div>
 
-    <div class="keybar"><label><input type="checkbox" id="showKey" checked> 顯示正確答案</label><span class="muted">分享螢幕給學生前，請取消勾選</span></div>
+    <div class="keybar"><label><input type="checkbox" id="showKey" checked> 顯示題目與正確答案</label><span class="muted">分享螢幕給學生前，請取消勾選</span></div>
 
     <div class="card" id="distCard" hidden>
       <h2 style="font-size:16px">第 <span id="distQ"></span> 題作答分佈</h2>
@@ -169,6 +171,10 @@ input:focus{border-color:var(--navy);background:#fff}
     st = j; offset = j.now - Date.now();
     $('sess').textContent = `場次 ${j.session}`;
     $('bigq').textContent = j.q ? `第 ${j.q} 題 / ${j.total}` : '尚未開始';
+    $('qIn').max = j.total;
+    const sk = showKey() && j.q && j.status !== 'ended';
+    $('themeLine').textContent = sk && j.theme ? j.theme : '';
+    $('stemLine').textContent = sk && j.stem ? j.stem : '';
     $('keyLine').innerHTML = (showKey() && j.key && j.q && j.status !== 'ended') ? `本題正確答案：<b>${j.key}</b>` : '';
     $('chip').textContent = LABEL[j.status] || j.status; $('chip').className = `chip ${j.status}`;
     $('sReg').textContent = j.registered; $('sAns').textContent = j.answered;
