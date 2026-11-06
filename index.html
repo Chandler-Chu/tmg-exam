@@ -125,8 +125,11 @@ input:focus{border-color:var(--navy);background:#fff}
     $('regBtn').disabled = true; $('regBtn').textContent = '報到中…';
     try {
       const j = await post(fd);
-      if (j.result !== 'success') throw new Error(j.error || '報到失敗');
-      me = { sid: v('f-id'), name: v('f-name'), session: j.session, answered: [] };
+      if (j.result !== 'success') {
+        if (j.error) { alert(j.error); $('regBtn').disabled = false; $('regBtn').textContent = '報到並進入測驗'; return; }
+        throw new Error('報到失敗');
+      }
+      me = { sid: v('f-id'), name: v('f-name'), session: j.session, answered: [], token: j.token || '' };
       store.set('tmg_me', me);
       showLive(); render(j); schedule();
     } catch (e) {
@@ -206,7 +209,7 @@ input:focus{border-color:var(--navy);background:#fff}
   async function showFinal() {
     clearTimeout(pollTimer);
     try {
-      const r = await fetch(`${SCRIPT_URL}?action=score&stu=${encodeURIComponent(me.sid)}&t=${Date.now()}`);
+      const r = await fetch(`${SCRIPT_URL}?action=score&stu=${encodeURIComponent(me.sid)}&tok=${encodeURIComponent(me.token || '')}&t=${Date.now()}`);
       const j = await r.json();
       if (j.result === 'notyet') { setTimeout(showFinal, 2000); return; }
       document.querySelector('main').innerHTML = j.result === 'success'
